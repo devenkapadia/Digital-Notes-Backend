@@ -23,24 +23,25 @@ router.post('/createUser', [
         let user = await User.findOne({ email: req.body.email })
         if (user) {
             return res.status(400).json({ "error": "Sorry a user already exists with this email" })
-        }
-        // Create User
-        const salt = await bcrypt.genSalt(10);
-        const secPass = await bcrypt.hash(req.body.password, salt)
-        const userName = req.body.name
-        user = User.create({
-            name: userName,
-            email: req.body.email,
-            password: secPass
-        })
-        const data = {
-            user: {
-                id: user.id
+        } else {
+            // Create User
+            const salt = await bcrypt.genSalt(10);
+            const secPass = await bcrypt.hash(req.body.password, salt)
+            const userName = req.body.name
+            user = User.create({
+                name: userName,
+                email: req.body.email,
+                password: secPass
+            })
+            const data = {
+                user: {
+                    id: user.id
+                }
             }
+            success = true
+            const authToken = jwt.sign(data, JWT_SECRET)
+            res.json({ success, authToken, userName })
         }
-        success = true
-        const authToken = jwt.sign(data, JWT_SECRET)
-        res.json({ success, authToken, userName })
     } catch (error) {
         res.status(500).json({ success, "Internal Error": "Some internal error occured" })
         console.log(error.messege);
@@ -98,8 +99,3 @@ router.post('/getuser', fetchuser, async (req, res) => {
     }
 })
 module.exports = router
-// {
-//   "name":"Deven",
-//   "email":"deven1@gmail.com",
-//   "password":"thisismydata"
-// }
