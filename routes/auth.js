@@ -15,12 +15,14 @@ router.post('/createUser', [
 ], async (req, res) => {
     let success = false
     const errors = validationResult(req);
+    console.log("errors", errors);
     if (!errors.isEmpty()) {
         return res.status(400).json({ success, errors: errors.array() });
     }
     try {
         // Check weather the user exists or not
         let user = await User.findOne({ email: req.body.email })
+        console.log("user", user);
         if (user) {
             return res.status(400).json({ "error": "Sorry a user already exists with this email" })
         } else {
@@ -40,6 +42,7 @@ router.post('/createUser', [
             }
             success = true
             const authToken = jwt.sign(data, JWT_SECRET)
+            console.log("user", userName);
             res.json({ success, authToken, userName })
         }
     } catch (error) {
@@ -55,12 +58,14 @@ router.post('/login', [
 ], async (req, res) => {
     let success = false
     const errors = validationResult(req);
+    console.log("errors", errors);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
     const { email, password } = req.body;
     try {
         let user = await User.findOne({ email })
+        console.log("user", user);
 
         if (!user) {
             res.status(400).json({ success, "No user exists": "The email you have entered is not registered" })
